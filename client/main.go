@@ -32,7 +32,7 @@ func main() {
 
 	for i, d := range opts.dirs {
 		httpOpts := &proto.HTTPOptions{Subdomain: d.subdomain, Auth: opts.auth}
-		tun, err := c.BindHTTPS(httpOpts, nil)
+		tun, err := c.ListenHTTPS(httpOpts, nil)
 		if err != nil {
 			panic(err)
 		}
