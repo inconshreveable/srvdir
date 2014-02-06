@@ -3,9 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
-	"strings"
-	"os"
 	"html/template"
+	"os"
+	"strings"
 )
 
 var defaultTemplate *template.Template
@@ -27,16 +27,16 @@ func init() {
 
 type Directory struct {
 	subdomain string
-	path string
+	path      string
 }
 
 type Options struct {
-	serverAddr   string
-	logto string
-	auth string
-	tmpl *template.Template
-	index bool
-	dirs []Directory
+	serverAddr string
+	logto      string
+	auth       string
+	tmpl       *template.Template
+	index      bool
+	dirs       []Directory
 }
 
 func parseArgs() (*Options, error) {
@@ -54,7 +54,7 @@ func parseArgs() (*Options, error) {
 	}
 
 	serverAddr := flag.String("serverAddr", "v1.srvdir.net:443", "Address of srvdird")
-	logto := flag.String("logto", "", "File to log to or 'stdout' for console")
+	logto := flag.String("log", "", "File to log to or 'stdout' for console")
 	auth := flag.String("auth", "", "username:password HTTP basic auth creds protecting the the public file server")
 	index := flag.Bool("index", true, "render index.html instead of directory listings")
 	tmplPath := flag.String("template", "", "path to a file with a custom html template for the directory listing")
@@ -65,7 +65,7 @@ func parseArgs() (*Options, error) {
 	var dirs []Directory
 	if len(args) == 0 {
 		// default with no arguments is to serve the current working directory with a random subdomain
-		dirs = []Directory{ {subdomain: "", path: "." } }
+		dirs = []Directory{{subdomain: "", path: "."}}
 	} else {
 		dirs = make([]Directory, len(args))
 
@@ -90,7 +90,7 @@ func parseArgs() (*Options, error) {
 				return nil, fmt.Errorf("%s is not a directory", path)
 			}
 
-			dirs[i] = Directory{subdomain:name, path:path}
+			dirs[i] = Directory{subdomain: name, path: path}
 		}
 	}
 
@@ -107,10 +107,10 @@ func parseArgs() (*Options, error) {
 
 	return &Options{
 		serverAddr: *serverAddr,
-		logto: *logto,
-		auth: *auth,
-		index: *index,
-		tmpl: tmpl,
-		dirs: dirs,
+		logto:      *logto,
+		auth:       *auth,
+		index:      *index,
+		tmpl:       tmpl,
+		dirs:       dirs,
 	}, nil
 }

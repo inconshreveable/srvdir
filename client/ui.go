@@ -18,9 +18,9 @@ func ui(routes []Route) {
 	a := NewArea(0, 0, width, height)
 
 	a.Clear()
-	a.APrintf(termbox.ColorCyan | termbox.AttrBold, 0, 0, "srvdir")
+	a.APrintf(termbox.ColorCyan|termbox.AttrBold, 0, 0, "srvdir")
 	a.Printf(7, 0, "by")
-	a.APrintf(termbox.ColorCyan | termbox.AttrBold, 10, 0, "@inconshreveable")
+	a.APrintf(termbox.ColorCyan|termbox.AttrBold, 10, 0, "@inconshreveable")
 	quitMessage := "(Ctl+C to quit)"
 	a.Printf(width-len(quitMessage), 0, quitMessage)
 

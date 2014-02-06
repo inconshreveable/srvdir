@@ -9,9 +9,11 @@ package main
 import (
 	"errors"
 	"fmt"
+	"html/template"
 	"io"
 	"mime"
 	"mime/multipart"
+	"net/http"
 	"net/textproto"
 	"os"
 	"path"
@@ -19,8 +21,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"net/http"
-	"html/template"
 )
 
 // A Dir implements http.FileSystem using the native file
@@ -81,11 +81,11 @@ func dirList(w http.ResponseWriter, f File, name string, tmpl *template.Template
 		}
 	}
 
-	tmpl.Execute(w, &struct{
-		Name string
+	tmpl.Execute(w, &struct {
+		Name     string
 		Contents []string
 	}{
-		Name: name,
+		Name:     name,
 		Contents: contents,
 	})
 }
@@ -423,10 +423,10 @@ func localRedirect(w http.ResponseWriter, r *http.Request, newPath string) {
 }
 
 type fileHandler struct {
-	root FileSystem
+	root     FileSystem
 	useIndex bool
 	readOnly bool
-	tmpl *template.Template
+	tmpl     *template.Template
 }
 
 // FileServer returns a handler that serves HTTP requests
@@ -438,10 +438,10 @@ type fileHandler struct {
 //     http.Handle("/", http.FileServer(http.Dir("/tmp")))
 func FileServer(root FileSystem, useIndex bool, readOnly bool, tmpl *template.Template) http.Handler {
 	return &fileHandler{
-		root: root,
+		root:     root,
 		useIndex: useIndex,
 		readOnly: readOnly,
-		tmpl: tmpl,
+		tmpl:     tmpl,
 	}
 }
 
