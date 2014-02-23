@@ -6,10 +6,13 @@ import (
 	"html/template"
 	"os"
 	"path/filepath"
-	"strings"
+	"regexp"
 )
 
 var defaultTemplate *template.Template
+
+// separate on any colon that isn't followed by a backslash (thanks windows!)
+var nameSeparator  = regexp.MustCompile(":[^\\\\]")
 
 func init() {
 	defaultTemplate = template.Must(template.New("dirlist").Parse(`
@@ -75,15 +78,11 @@ func parseArgs() (*Options, error) {
 		dirs = make([]Directory, len(args))
 
 		for i, arg := range args {
-			parts := strings.Split(arg, ":")
-			var name, path string
+			var name, path string = "", arg
 
-			if len(parts) > 2 {
-				return nil, fmt.Errorf("Each argument must be a path or NAME:path")
-			} else if len(parts) == 2 {
-				name, path = parts[0], parts[1]
-			} else {
-				path = parts[0]
+			loc := nameSeparator.FindStringIndex(arg)
+			if loc != nil {
+                name, path = arg[:loc[0]], arg[loc[1]-1:]
 			}
 
 			fi, err := os.Stat(path)
