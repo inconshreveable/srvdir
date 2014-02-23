@@ -29,20 +29,55 @@ import (
 // An empty Dir is treated as ".".
 type Dir string
 
-func (d Dir) Open(name string) (File, error) {
+func (d Dir) resolvePath(name string) (string, error) {
 	if filepath.Separator != '/' && strings.IndexRune(name, filepath.Separator) >= 0 ||
 		strings.Contains(name, "\x00") {
-		return nil, errors.New("http: invalid character in file path")
+		return "", errors.New("http: invalid character in file path")
 	}
 	dir := string(d)
 	if dir == "" {
 		dir = "."
 	}
-	f, err := os.Open(filepath.Join(dir, filepath.FromSlash(path.Clean("/"+name))))
+	return filepath.Join(dir, filepath.FromSlash(path.Clean("/"+name))), nil
+}
+
+func (d Dir) Open(name string) (File, error) {
+	path, err := d.resolvePath(name)
+	if err != nil {
+		return nil, err
+	}
+	f, err := os.Open(path)
 	if err != nil {
 		return nil, err
 	}
 	return f, nil
+}
+
+func (d Dir) Remove(name string) error {
+	path, err := d.resolvePath(name)
+	if err != nil {
+		return err
+	}
+	return os.Remove(path)
+}
+
+func (d Dir) Write(name string, contents io.Reader) error {
+	path, err := d.resolvePath(name)
+	if err != nil {
+		return err
+	}
+
+	f, err := os.OpenFile(path, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0660)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	_, err = io.Copy(f, contents)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // A FileSystem implements access to a collection of named files.
@@ -339,6 +374,18 @@ func checkETag(w http.ResponseWriter, r *http.Request) (rangeReq string, done bo
 	return rangeReq, false
 }
 
+func (fh *fileHandler) removeFile(w http.ResponseWriter, r *http.Request, name string) {
+	if err := fh.root.Remove(name); err != nil {
+		http.Error(w, fmt.Sprintf("Failed to remove file: %v", err), 403)
+	}
+}
+
+func (fh *fileHandler) writeFile(w http.ResponseWriter, r *http.Request, name string) {
+	if err := fh.root.Write(name, r.Body); err != nil {
+		http.Error(w, fmt.Sprintf("Failed to write file: %v", err), 403)
+	}
+}
+
 // name is '/'-separated, not filepath.Separator.
 func (fh *fileHandler) serveFile(w http.ResponseWriter, r *http.Request, name string, redirect bool) {
 	const indexPage = "/index.html"
@@ -423,7 +470,7 @@ func localRedirect(w http.ResponseWriter, r *http.Request, newPath string) {
 }
 
 type fileHandler struct {
-	root     FileSystem
+	root     Dir
 	useIndex bool
 	readOnly bool
 	tmpl     *template.Template
@@ -436,7 +483,7 @@ type fileHandler struct {
 // use http.Dir:
 //
 //     http.Handle("/", http.FileServer(http.Dir("/tmp")))
-func FileServer(root FileSystem, useIndex bool, readOnly bool, tmpl *template.Template) http.Handler {
+func FileServer(root Dir, useIndex bool, readOnly bool, tmpl *template.Template) http.Handler {
 	return &fileHandler{
 		root:     root,
 		useIndex: useIndex,
@@ -452,7 +499,25 @@ func (f *fileHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		r.URL.Path = upath
 	}
 
-	f.serveFile(w, r, path.Clean(upath), true)
+	cleanPath := path.Clean(upath)
+	switch r.Method {
+	case "GET", "POST":
+		f.serveFile(w, r, cleanPath, true)
+	case "PUT":
+		if f.readOnly {
+			http.Error(w, "405 Method not allowed", 405)
+			return
+		}
+		f.writeFile(w, r, cleanPath)
+	case "DELETE":
+		if f.readOnly {
+			http.Error(w, "405 Method not allowed", 405)
+			return
+		}
+		f.removeFile(w, r, cleanPath)
+	default:
+		http.Error(w, "405 Method not allowed", 405)
+	}
 }
 
 // httpRange specifies the byte range to be sent to the client.

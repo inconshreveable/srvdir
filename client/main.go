@@ -56,7 +56,7 @@ func main() {
 		path := d.path
 		go func() {
 			log.Info("Serving %s on %s", path, tun.Addr().String())
-			fs := FileServer(Dir(path), opts.index, true, opts.tmpl)
+			fs := FileServer(Dir(path), opts.index, opts.readOnly, opts.tmpl)
 			if err := http.Serve(tun, fs); err != nil {
 				fmt.Printf("Failed to start static http server for directory %v: %v\n", path, err)
 				os.Exit(1)

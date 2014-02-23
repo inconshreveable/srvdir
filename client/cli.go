@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html/template"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -34,7 +35,9 @@ type Options struct {
 	serverAddr string
 	logto      string
 	auth       string
+	authtoken  string
 	tmpl       *template.Template
+	readOnly   bool
 	index      bool
 	dirs       []Directory
 }
@@ -56,6 +59,8 @@ func parseArgs() (*Options, error) {
 	serverAddr := flag.String("serverAddr", "v1.srvdir.net:443", "Address of srvdird")
 	logto := flag.String("log", "", "File to log to or 'stdout' for console")
 	auth := flag.String("auth", "", "username:password HTTP basic auth creds protecting the the public file server")
+	authtoken := flag.String("authtoken", "", "Authtoken which identifies a srvdir.net account")
+	readOnly := flag.Bool("readonly", true, "don't handle DELETE or PUT requests")
 	index := flag.Bool("index", true, "render index.html instead of directory listings")
 	tmplPath := flag.String("template", "", "path to a file with a custom html template for the directory listing")
 
@@ -94,6 +99,15 @@ func parseArgs() (*Options, error) {
 		}
 	}
 
+	// make paths absolute
+	for i, d := range dirs {
+		var err error
+		dirs[i].path, err = filepath.Abs(d.path)
+		if err != nil {
+			return nil, fmt.Errorf("Failed to extract aboslute path for dir '%s': %v", d.path, err)
+		}
+	}
+
 	var tmpl *template.Template
 	if *tmplPath != "" {
 		var err error
@@ -109,6 +123,8 @@ func parseArgs() (*Options, error) {
 		serverAddr: *serverAddr,
 		logto:      *logto,
 		auth:       *auth,
+		authtoken:  *authtoken,
+		readOnly:   *readOnly,
 		index:      *index,
 		tmpl:       tmpl,
 		dirs:       dirs,
