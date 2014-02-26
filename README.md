@@ -37,3 +37,6 @@ Most of the code from srvdir is either a modified version of the standard librar
 
 ## Future Plans
 I'd love to add native support to serve the files over SFTP/FTP as well as HTTP.
+
+## Licenese
+Apache
