@@ -1,4 +1,4 @@
-package main
+package client
 
 import (
 	"fmt"
@@ -9,9 +9,12 @@ import (
 	"net"
 	"net/http"
 	"os"
+	srvdir_proto "srvdir/proto"
 )
 
-func main() {
+const version = "0.1"
+
+func Main() {
 	// parse command line opts
 	opts, err := parseArgs()
 	if err != nil {
@@ -37,17 +40,35 @@ func main() {
 		os.Exit(1)
 	}
 
-	c, err := tunnel.DialTLSReconnecting("tcp", opts.serverAddr, tlsCfg, nil)
+	// load configuration file
+	config, err := LoadConfiguration(opts.configPath)
+	if err != nil {
+		fmt.Printf("Error loading confuration: %v", err)
+		os.Exit(1)
+	}
+
+	// override authtoken with command line option
+	if opts.authtoken != "" {
+		config.AuthToken = opts.authtoken
+	}
+
+	// connect to srvdir service
+	authExtra := srvdir_proto.NewAuthExtra(config.AuthToken, version)
+	c, err := tunnel.DialTLSReconnecting("tcp", opts.serverAddr, tlsCfg, authExtra)
 	if err != nil {
 		fmt.Printf("Failed to setup tunnel connection to %v: %v\n", opts.serverAddr, err)
 		os.Exit(1)
+	}
+
+	if err := SaveAuthToken(opts.configPath, config.AuthToken); err != nil {
+		log.Warn("Failed to save authtoken to config file: %v", err)
 	}
 
 	routes := make([]Route, len(opts.dirs))
 
 	for i, d := range opts.dirs {
 		httpOpts := &proto.HTTPOptions{Subdomain: d.subdomain, Auth: opts.auth}
-		tun, err := c.ListenHTTPS(httpOpts, nil)
+		tun, err := c.ListenHTTP(httpOpts, nil)
 		if err != nil {
 			fmt.Printf("Failed to listen on subdomain '%v': %v\n", d.subdomain, err)
 			os.Exit(1)
@@ -72,5 +93,7 @@ func main() {
 	// run the console UI
 	if opts.logto != "stdout" {
 		ui(routes)
+	} else {
+		select {}
 	}
 }

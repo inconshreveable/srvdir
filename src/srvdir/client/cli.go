@@ -1,4 +1,4 @@
-package main
+package client
 
 import (
 	"flag"
@@ -12,7 +12,7 @@ import (
 var defaultTemplate *template.Template
 
 // separate on any colon that isn't followed by a backslash (thanks windows!)
-var nameSeparator  = regexp.MustCompile(":[^\\\\]")
+var nameSeparator = regexp.MustCompile(":[^\\\\]")
 
 func init() {
 	defaultTemplate = template.Must(template.New("dirlist").Parse(`
@@ -39,6 +39,7 @@ type Options struct {
 	logto      string
 	auth       string
 	authtoken  string
+	configPath string
 	tmpl       *template.Template
 	readOnly   bool
 	index      bool
@@ -65,10 +66,17 @@ func parseArgs() (*Options, error) {
 	authtoken := flag.String("authtoken", "", "Authtoken which identifies a srvdir.net account")
 	readOnly := flag.Bool("readonly", true, "don't handle DELETE or PUT requests")
 	index := flag.Bool("index", true, "render index.html instead of directory listings")
+	configPath := flag.String("config", "", "Path to srvdir configuration file, default $HOME/.srvdir")
 	tmplPath := flag.String("template", "", "path to a file with a custom html template for the directory listing")
+	v := flag.Bool("version", false, "print version and exit")
 
 	flag.Parse()
 	args := flag.Args()
+
+	if *v {
+		fmt.Println(version)
+		os.Exit(0)
+	}
 
 	var dirs []Directory
 	if len(args) == 0 {
@@ -82,7 +90,7 @@ func parseArgs() (*Options, error) {
 
 			loc := nameSeparator.FindStringIndex(arg)
 			if loc != nil {
-                name, path = arg[:loc[0]], arg[loc[1]-1:]
+				name, path = arg[:loc[0]], arg[loc[1]-1:]
 			}
 
 			fi, err := os.Stat(path)
@@ -123,6 +131,7 @@ func parseArgs() (*Options, error) {
 		logto:      *logto,
 		auth:       *auth,
 		authtoken:  *authtoken,
+		configPath: *configPath,
 		readOnly:   *readOnly,
 		index:      *index,
 		tmpl:       tmpl,

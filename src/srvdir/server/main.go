@@ -1,18 +1,19 @@
-package main
+package server
 
 import (
-	tunneltls "github.com/inconshreveable/go-tunnel/tls"
+	"github.com/inconshreveable/go-tunnel/log"
 	"github.com/inconshreveable/go-tunnel/server"
 	"github.com/inconshreveable/go-tunnel/server/binder"
-	"github.com/inconshreveable/go-tunnel/log"
+	tunneltls "github.com/inconshreveable/go-tunnel/tls"
 	"time"
 )
 
 const (
 	muxTimeout = 10 * time.Second
+	version    = "0.1"
 )
 
-func main() {
+func Main() {
 	opts := parseArgs()
 
 	// set up logging
@@ -53,6 +54,8 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	server.SessionHooks = new(SessionHooks)
 
 	server.Run()
 }

@@ -4,7 +4,7 @@
 
 // HTTP file system request handler
 
-package main
+package client
 
 import (
 	"errors"
