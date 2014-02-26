@@ -55,7 +55,7 @@ func Main() {
 		panic(err)
 	}
 
-	server.SessionHooks = new(SessionHooks)
+	server.SessionHooks = NewSessionHooks()
 
 	server.Run()
 }

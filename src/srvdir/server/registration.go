@@ -44,10 +44,10 @@ func (h *RegistrationHooks) OnAuth(sess *server.Session, auth *proto.Auth) error
 		return fmt.Errorf("Internal error building registration payload")
 	}
 
-	resp, err := http.Post("http://localhost:44441/OnAuth", "application/json", bytes.NewBuffer(payload))
+	resp, err := http.Post(h.onAuthURL, "application/json", bytes.NewBuffer(payload))
 	if err != nil {
 		h.Error("Error consulting registration service: %v", err)
-		return fmt.Errorf("Internal error consulting registration service")
+		return nil
 	}
 
 	if resp.Body != nil {
@@ -57,7 +57,7 @@ func (h *RegistrationHooks) OnAuth(sess *server.Session, auth *proto.Auth) error
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		h.Error("Error reading registration service response: %v", err)
-		return fmt.Errorf("Internal error reading registration service response")
+		return nil
 	}
 
 	switch resp.StatusCode {
@@ -68,7 +68,7 @@ func (h *RegistrationHooks) OnAuth(sess *server.Session, auth *proto.Auth) error
 		err = json.Unmarshal(body, &validationErr)
 		if err != nil {
 			h.Error("Failed to unmarshal registration service error response: %v", err)
-			return fmt.Errorf("Internal error handling registration service error response")
+			return nil
 		}
 		h.Info("Registration service failed request: %v", err)
 		return fmt.Errorf("%v", validationErr.Message)
@@ -78,7 +78,7 @@ func (h *RegistrationHooks) OnAuth(sess *server.Session, auth *proto.Auth) error
 
 	default:
 		h.Error("Registration service returned unhandled status code: %v", resp.StatusCode)
-		return fmt.Errorf("Internal error handling registration service response code")
+		return nil
 	}
 
 	return nil
@@ -105,7 +105,7 @@ func (h *RegistrationHooks) OnBind(sess *server.Session, bind *proto.Bind) error
 	resp, err := http.Post(h.onBindURL, "application/json", bytes.NewBuffer(payload))
 	if err != nil {
 		h.Error("Error consulting registration service: %v", err)
-		return fmt.Errorf("Internal error consulting registration service")
+		return nil
 	}
 
 	if resp.Body != nil {
@@ -115,7 +115,7 @@ func (h *RegistrationHooks) OnBind(sess *server.Session, bind *proto.Bind) error
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		h.Error("Error reading registration service response: %v", err)
-		return fmt.Errorf("Internal error reading registration service response")
+		return nil
 	}
 
 	switch resp.StatusCode {
@@ -126,7 +126,7 @@ func (h *RegistrationHooks) OnBind(sess *server.Session, bind *proto.Bind) error
 		err = json.Unmarshal(body, &validationErr)
 		if err != nil {
 			h.Error("Failed to unmarshal registration service error response: %v", err)
-			return fmt.Errorf("Internal error handling registration service error response")
+			return nil
 		}
 		h.Info("Registration service failed request: %v", err)
 		return fmt.Errorf("%v", validationErr.Message)
@@ -135,12 +135,12 @@ func (h *RegistrationHooks) OnBind(sess *server.Session, bind *proto.Bind) error
 		err = json.Unmarshal(body, bind)
 		if err != nil {
 			h.Error("Failed to unmarshal registration service response: %v", err)
-			return fmt.Errorf("Internal error handling registration service response")
+            return nil
 		}
 
 	default:
 		h.Error("Registration service returned unhandled status code: %v", resp.StatusCode)
-		return fmt.Errorf("Internal error handling registration service response code")
+		return nil
 	}
 
 	return nil

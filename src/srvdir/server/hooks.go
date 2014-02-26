@@ -26,6 +26,7 @@ func NewSessionHooks() *SessionHooks {
 	regBindURL := os.Getenv("REG_BIND_URL")
 	if regAuthURL != "" && regBindURL != "" {
 		hooks.reg = NewRegistrationHooks(regAuthURL, regBindURL)
+        hooks.reg.Info("Registration hooks enabled for URLs: Auth: %v, Bind: %v", regAuthURL, regBindURL)
 	}
 
 	return hooks
