@@ -68,7 +68,7 @@ func Main() {
 
 	for i, d := range opts.dirs {
 		httpOpts := &proto.HTTPOptions{Subdomain: d.subdomain, Auth: opts.auth}
-		tun, err := c.ListenHTTP(httpOpts, nil)
+		tun, err := c.ListenHTTPS(httpOpts, nil)
 		if err != nil {
 			fmt.Printf("Failed to listen on subdomain '%v': %v\n", d.subdomain, err)
 			os.Exit(1)
