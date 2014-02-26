@@ -1,4 +1,4 @@
-# srvdir - Expose any directory a secure public file server
+# srvdir - Expose any directory as a secure public file server
 
 ## Homepage
 [https://www.srvdir.net](https://www.srvdir.net)
