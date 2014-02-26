@@ -34,3 +34,6 @@ That's it!
 
 ## Code
 Most of the code from srvdir is either a modified version of the standard library's http.FileServer or from the go-tunnel library: [https://github.com/inconshreveable/go-tunnel](https://github.com/inconshreveable/go-tunnel)
+
+## Future Plans
+I'd love to add native support to serve the files over SFTP/FTP as well as HTTP.
