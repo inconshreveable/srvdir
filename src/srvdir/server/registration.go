@@ -135,7 +135,7 @@ func (h *RegistrationHooks) OnBind(sess *server.Session, bind *proto.Bind) error
 		err = json.Unmarshal(body, bind)
 		if err != nil {
 			h.Error("Failed to unmarshal registration service response: %v", err)
-            return nil
+			return nil
 		}
 
 	default:

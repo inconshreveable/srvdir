@@ -388,17 +388,17 @@ func (fh *fileHandler) writeFile(w http.ResponseWriter, r *http.Request, name st
 
 // name is '/'-separated, not filepath.Separator.
 func (fh *fileHandler) serveFile(w http.ResponseWriter, r *http.Request, name string, redirect bool) {
-    indexPages := []string{"/index.html", "/index.htm"}
+	indexPages := []string{"/index.html", "/index.htm"}
 
 	// redirect .../index.html to .../
 	// can't use Redirect() because that would make the path absolute,
 	// which would be a problem running under StripPrefix
-    for _, indexPage := range indexPages {
-        if strings.HasSuffix(r.URL.Path, indexPage) {
-            localRedirect(w, r, "./")
-            return
-        }
-    }
+	for _, indexPage := range indexPages {
+		if strings.HasSuffix(r.URL.Path, indexPage) {
+			localRedirect(w, r, "./")
+			return
+		}
+	}
 
 	f, err := fh.root.Open(name)
 	if err != nil {
@@ -434,20 +434,20 @@ func (fh *fileHandler) serveFile(w http.ResponseWriter, r *http.Request, name st
 
 	// use contents of index.html for directory, if present
 	if fh.useIndex && d.IsDir() {
-        for _, indexPage := range indexPages {
-            index := name + indexPage
-            ff, err := fh.root.Open(index)
-            if err == nil {
-                defer ff.Close()
-                dd, err := ff.Stat()
-                if err == nil {
-                    name = index
-                    d = dd
-                    f = ff
-                    break
-                }
-            }
-        }
+		for _, indexPage := range indexPages {
+			index := name + indexPage
+			ff, err := fh.root.Open(index)
+			if err == nil {
+				defer ff.Close()
+				dd, err := ff.Stat()
+				if err == nil {
+					name = index
+					d = dd
+					f = ff
+					break
+				}
+			}
+		}
 	}
 
 	// Still a directory? (we didn't find an index.html file)
