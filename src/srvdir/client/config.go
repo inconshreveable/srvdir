@@ -4,8 +4,8 @@ package client
 
 import (
 	"fmt"
-	"github.com/go-yaml/go-yaml-v1"
 	"github.com/inconshreveable/go-tunnel/log"
+	"gopkg.in/yaml.v1"
 	"io/ioutil"
 	"os"
 	"os/user"
