@@ -18,7 +18,7 @@ type MetricsHooks struct {
 }
 
 func NewMetricsHooks(keenApiKey, keenProjectToken string) *MetricsHooks {
-	client := &keen.Client{ApiKey: keenApiKey, ProjectToken: keenProjectToken}
+	client := &keen.Client{WriteKey: keenApiKey, ProjectID: keenProjectToken}
 
 	return &MetricsHooks{
 		Logger: log.NewTaggedLogger("hooks", "metrics"),
