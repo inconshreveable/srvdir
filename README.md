@@ -1,7 +1,7 @@
 # srvdir - Expose any directory as a secure public file server
 
 ## Homepage
-[https://www.srvdir.net](https://www.srvdir.net)
+[http://srvdir.net](http://srvdir.net)
 
 ## Usage
 srvdir allows you to turn any directory into a secure public file server. You can think of it like Python's SimpleHTTPServer, but with a TLS-secured public URL. It is similar to an on-demand public Dropbox folder.
