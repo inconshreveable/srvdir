@@ -3,6 +3,16 @@
 ## Homepage
 [http://srvdir.net](http://srvdir.net)
 
+## Project status
+
+srvdir is no longer developed, supported or maintained by its author, except to ensure that the project continues to compile. The contribution policy has the following guidelines:
+
+1. All issues against this repository will be closed unless they demonstrate a crash or other complete failure of srvdir's functionality.
+2. No new features will be added. Any pull requests with new features will be closed. Please fork the project instead.
+3. Pull requests fixing existing bugs or improving documentation are welcomed.
+
+The public srvdir.net service that used to run is no longer available. It was shut down in April, 2016.
+
 ## Usage
 srvdir allows you to turn any directory into a secure public file server. You can think of it like Python's SimpleHTTPServer, but with a TLS-secured public URL. It is similar to an on-demand public Dropbox folder.
 
