@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>srvdir - make any folder a secure public fileserver</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="srvdir - make any folder into a secure authenticated public fileserver">
+    <meta name="author" content="inconshreveable">
+
+    <style type="text/css">
+      html, body { margin: 0; padding: 0; }
+      .wordmark a:hover { text-decoration: none; }
+      .container-fluid { max-width: 757px; margin: 0 auto; padding: 20px 0; }
+      pre code, code { border: 0; }
+      code.well { display: block; }
+    </style>
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="/static/css/bootstrap-responsive.min.css" />
+    <style type="text/css">
+        /* all pages */
+        body { background-color: #ffffff; }
+        body p { color: #222; font-size: 16px; line-height: 26px; }
+        a { color: #FF4500; }
+        a:hover { color: #EDBD1F; }
+        h4 { margin-top: 40px; color: #000; font-weight: bold; font-size: 20px; }
+        h2 { color: #1E90FF; margin-top: 60px; }
+        h2:first-child { margin-top: 20px; }
+        hr { border-color: #ddd; }
+        pre { padding: 0; border: 0; }
+
+        /* nav styles */
+        #nav > div.container-fluid { padding: 0; }
+        #nav .nav { margin: 13px 0; }
+        #nav .nav li a { color: #FF4500; }
+        #nav .nav li.active a { color: white; background-color: #FF4500; }
+        #nav .nav li:hover a { background-color: #efe0e0; }
+        #nav .wordmark a { color: #1E90FF; }
+
+        /* footer */
+        #footer { color: #999; padding-bottom: 40px; }
+
+        /* landing page */
+        #title { background-color: #333; }
+        #title > .explanation { margin-top: 50px;}
+        #title > div { background-image: url(/static/img/term.png); background-position: bottom -120px right -60px; background-repeat: no-repeat; }
+        #title > div { padding: 0 20px; }
+        #title p { color: #C2C1A5; }
+        #title h3 { text-align: center; color: white; }
+        #title iframe { border: 4px solid gray; border-radius: 8px; padding: 10px; background-color: #000; }
+        #features h4 { margin-top: 30px; }
+        #features { padding-bottom: 30px; }
+
+        @media (max-width: 767px) {
+            body { padding: 0 }
+            #title > div { background-image: none; }
+            #title > .explanation { margin-top: 20px;}
+            #mobile-console-image { height: 200px; background-image: url(/static/img/term.png); background-position: center bottom -90px;; background-repeat: no-repeat; }
+        }
+    </style>
+  </head>
+  <body>
+        <div id="nav">
+        <div class="container-fluid">
+            <div class="masthead">
+                <ul class="nav nav-pills pull-right">
+                        <li>
+                            <a href="/">Home</a>
+                        </li>
+                        <li class="active">
+                            <a href="/usage">Documentation</a>
+                        </li>
+                        <li class="">
+                            <a href="https://github.com/inconshreveable/srvdir">Code</a>
+                        </li>
+                </ul>
+                <h3 class="wordmark muted"><a href="/">srvdir</a></h3>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <div class="container-fluid">
+            <h2>Usage</h2>
+            <h4>Serve the current directory</h4>
+            <p>The simplest usage of srvdir is to serve the files in the current directory. It's actually this easy.</p>
+            <code class="well">$ ./srvdir</code>
+            <p>After you run the command, you should see srvdir's UI display the public URL where it's serving the files in your current directory. srvdir will generate a random URL for you, but don't worry, we'll learn how to customize that next.</p>
+            <pre><code class="well">srvdir by @inconshreveable
+
+Serving                                                                                     
+https://a7ed5771.srvdir.net -> .</code></pre>
+
+            <hr />
+            <h4>Serve a specific directory</h4>
+            <p>To tell srvdir to serve files in a different directory, just pass it the path of the directory you want to serve.</p>
+            <code class="well">$ ./srvdir /path/to/directory</code>
+
+            <hr />
+            <h4>Serve on a custom subdomain</h4>
+            <p>Instead of letting srvdir generate random URLs for you, you can prefix the path you want to serve with the custom name you want to use, separated with a colon, like so:</p>
+            <code class="well">$ srvdir custom:/path/to/directory</code>
+            <p>After which you'll see:</p>
+            <pre><code class="well">srvdir by @inconshreveable
+
+Serving                                                                                     
+https://custom.srvdir.net -> /path/to/directory</code></pre>
+
+            <hr />
+            <h4>Add a username and passowrd</h4>
+            <p>srvdir allows you to specify a username and password to protect your file server so that you can control who has access. Use the <code>-auth</code> flag to do it:</p>
+            <code class="well">$ ./srvdir -auth="root:12345" custom:/path/to/directory</code>
+
+            <p>Now, when someone tries to access https://custom.srvdir.net they'll need to enter the correct username and password to get access.</p>
+
+            <hr />
+            <h4>Serving multiple directories</h4>
+            <p>srvdir lets you serve an arbtriary number of directories simultaneously by adding additional paths to the command line.</p>
+            <code class="well">$ srvdir foo:/my/favorite/folder bar:/path/to/directory</code>
+            <p>Will cause srvdir to serve:</p>
+            <pre><code class="well">srvdir by @inconshreveable
+
+Serving                                                                                     
+https://foo.srvdir.net -> /my/favorite/folder
+https://bar.srvdir.net -> /path/to/directory</code></pre>
+
+            <h2>Serving static websites</h2>
+            <h4>Hello World</h4>
+            <p>srvdir follows the same conventions other popular webservers follow and will serve the file at index.html if you access the containing folder. To try it, save a new file, <code>index.html</code> in your current directory and type in these contents:</p>
+            <pre><code class="well">&lt;h1&gt;Hello world!&lt;/h1&gt;</code></pre>
+            <p>Then start srvdir pointing to your current directory:</p>
+            <code class="well">$ ./srvdir .</code>
+            <p>Now, in your browser, try opening up the srvdir URL. Instead of seeing a directory listing including <code>index.html</code>, you should see:
+            <img src="/static/img/hello_world.png" />
+
+            <h4>Disabling index rendering</h4>
+            <p>Sometimes, the behavior of automatically rendering index.html isn't what you want, so it's easy to turn off, just set the flag <code>-index=false</code> on the command line:
+            <pre><code class="well">$ ./srvdir -index=false .</code></pre>
+            <p>If you look at the srvdir URL this time, you should see the familiar directory listing again.</p>
+
+            <h2 id="advanced">Advanced Features</h2>
+            <h4>Uploading and Deleting files</h4>
+            <p>srvdir is really good at serving files, but it can also let clients <strong>upload</strong> or delete files in the directories you serve. This behavior is disabled by default, but you can turn it on by using the <code>-readonly</code> flag. You probably only ever want to disable readonly mode when you are serving with authentication.</p>
+            <code class="well">$ ./srvdir -auth="user:password" -readonly=false writeable:.</code>
+            <p>Once srvdir is running, you can upload a file with an HTTP PUT request:</p>
+            <code class="well">$ curl -X PUT -d @file.txt https://writeable.srvdir.net/file.txt</code>
+            <p>And similarly, you can delete afterwards with an HTTP DELETE request:</p>
+            <code class="well">$ curl -X DELETE https://writeable.srvdir.net/file.txt</code>
+
+            <h4>Customize directory listing presentation</h4>
+            <p>srvdir exposes a <code>-template</code> option so that you can customize the look and feel of the directory listing without modifying the srvdir code. You must pass a path to a template file in the form specified by Go's <a href="http://golang.org/pkg/html/template/">html/template</a> package. This is the default template that srvdir uses:</p>
+            {% raw %}
+            <pre><code class="well">&lt;!doctype html&gt;
+&lt;html&gt;
+  &lt;body&gt;
+    &lt;h3&gt;Directory listing for {{.Name}}&lt;/h3&gt;
+    &lt;pre&gt;
+{{ range .Contents }}&lt;a href="{{.}}"&gt;{{.}}&lt;/a&gt;
+{{ end }}
+    &lt;/pre&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+            {% endraw %}
+        </div>
+    </div>
+
+    <div id="footer">
+        <div class="container-fluid">
+            <div class="row-fluid">
+                &copy; <a href="https://inconshreveable.com">inconshreveable</a> 2016
+            </div>
+        </div>
+    </div>
+  </body>
+</html>
